@@ -1,4 +1,4 @@
-SECRET_KEY = 'your-secret'
+SECRET_KEY = WTF_CSRF_SECRET_KEY = 'your-secret'
 
 SQLALCHEMY_DATABASE_URI = 'sqlite:///db.sqlite'
 OAUTH_CACHE_DIR = '_cache'

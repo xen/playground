@@ -56,56 +56,47 @@ class Client1Form(BaseForm):
 class OAuth2ClientWrapper(object):
     def __init__(self, client):
         self._client = client
-        self.name = client.name
-        self.website = client.website
-        self.is_confidential = client.is_confidential
-        self.redirect_uris = client.redirect_uris
-        self.default_redirect_uri = client.default_redirect_uri
-        self.allowed_scopes = client.allowed_scopes.split()
-        self.allowed_grants = client.allowed_grants.split()
+        self.client_name = client.client_name
+        self.client_uri = client.client_uri
+        self.redirect_uri = client.redirect_uri
+        self.scope = client.scope.split()
+        self.grant_type = client.grant_type.split()
 
 
 class Client2Form(BaseForm):
-    name = StringField(validators=[DataRequired()])
-    website = URLField()
-    is_confidential = BooleanField('Confidential Client')
-    redirect_uris = TextAreaField()
-    default_redirect_uri = URLField()
-    allowed_scopes = SelectMultipleField(choices=SCOPES)
-    allowed_grants = SelectMultipleField(choices=GRANTS)
+    client_name = StringField(validators=[DataRequired()])
+    client_uri = URLField()
+    # is_confidential = BooleanField('Confidential Client')
+    redirect_uri = TextAreaField()
+    scope = SelectMultipleField(choices=SCOPES)
+    grant_type = SelectMultipleField(choices=GRANTS)
 
     def update(self, client):
-        client.name = self.name.data
-        client.website = self.website.data
-        client.is_confidential = self.is_confidential.data
-        client.redirect_uris = self.redirect_uris.data
-        client.default_redirect_uri = self.default_redirect_uri.data
-        client.allowed_scopes = ' '.join(self.allowed_scopes.data)
-        client.allowed_grants = ' '.join(self.allowed_grants.data)
+        client.client_name = self.client_name.data
+        client.client_uri = self.client_uri.data
+        client.redirect_uri = self.redirect_uri.data
+        client.scope = ' '.join(self.scope.data)
+        client.grant_type = ' '.join(self.grant_type.data)
         with db.auto_commit():
             db.session.add(client)
         return client
 
     def save(self, user):
-        name = self.name.data
-        is_confidential = self.is_confidential.data
+        client_name = self.client_name.data
 
         client_id = gen_salt(48)
-        if is_confidential:
-            client_secret = gen_salt(78)
-        else:
-            client_secret = ''
+        client_secret = gen_salt(78)
 
         client = OAuth2Client(
             user_id=user.id,
             client_id=client_id,
             client_secret=client_secret,
-            name=name,
-            is_confidential=is_confidential,
-            default_redirect_uri=self.default_redirect_uri.data,
-            website=self.website.data,
-            allowed_scopes=' '.join(self.allowed_scopes.data),
-            allowed_grants=' '.join(self.allowed_grants.data),
+            client_name=client_name,
+            # is_confidential=is_confidential,
+            redirect_uri=self.redirect_uri.data,
+            client_uri=self.client_uri.data,
+            scope=' '.join(self.scope.data),
+            grant_type=' '.join(self.grant_type.data),
         )
         with db.auto_commit():
             db.session.add(client)

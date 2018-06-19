@@ -21,6 +21,7 @@
 {% endmacro %}
 
 {% macro render_form(form) %}
+  {{ form.csrf_token }}
   {% for field in form.hidden_fields() %}
     {{ field }}
   {% endfor %}
